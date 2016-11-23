@@ -4,30 +4,37 @@
 set -e
 
 # Debug
-set -x
+# set -x
 
+CWD=$(pwd)
 cleanup() {
-    popd
+    cd "${CWD}"
     
     echo "Done!"
 }
-trap 'cleanup' SIGHUP SIGINT SIGTERM ERR
+trap 'cleanup' SIGTERM ERR
 
 
 
 
-pushd /Code/External/southwest-checkin
+cd "/Code/smj10j/southwest-checkin"
 
-echo "Launching redis..."
-redis-server /usr/local/etc/redis.conf &
+# echo "Launching redis..."
+# redis-server /usr/local/etc/redis.conf &
+# 
+# echo "Launching postgres..."
+# pg_ctl -D /usr/local/var/postgres-9.6.1 -l postgres-log.log start &
 
-echo "Launching postgres..."
-pg_ctl -D /usr/local/var/postgres-9.6.1 -l postgres-log.log start &
 
 echo "Launching sidekiq..."
-bundle exec sidekiq &
+bundle exec sidekiq 2>&1 &
 
 echo "Launching webserver..."
-rails s
+rails s 2>&1 & 
 
+wait %1 %2
 
+# Keep-alive# : update existing `sudo` time stamp until finished
+# while read -n1; do 
+#     sleep 1
+# done 2>/dev/null
